@@ -1,0 +1,611 @@
+openapi: 3.0.3
+info:
+  title: Request AI Ride API
+  version: 1.0.0
+  description: 'Recommended workflow: 1) Register, 2) Login and copy the access token,
+    3) click Authorize and paste ONLY the access token (do not include the Bearer
+    prefix), 4) View your profile, 5) Get a fare estimate, 6) Create a ride, 7) View
+    ride history or details, 8) Cancel a ride if needed.'
+paths:
+  /api/:
+    get:
+      operationId: api_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      tags:
+      - 1. Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Registration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Registration'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: api_auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - 1. Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/users/me/:
+    get:
+      operationId: api_users_me_retrieve
+      tags:
+      - 2. User profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    put:
+      operationId: api_users_me_update
+      tags:
+      - 2. User profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    patch:
+      operationId: api_users_me_partial_update
+      tags:
+      - 2. User profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/users/me/password/:
+    patch:
+      operationId: api_users_me_password_partial_update
+      tags:
+      - 2. User profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedChangePassword'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/drivers/available/:
+    get:
+      operationId: api_drivers_available_list
+      tags:
+      - 4. Rides
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableDriver'
+          description: ''
+  /api/driver/rides/available/:
+    get:
+      operationId: api_driver_rides_available_list
+      tags:
+      - 4. Rides
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ride'
+          description: ''
+  /api/rides/:
+    get:
+      operationId: api_rides_list
+      tags:
+      - 4. Rides
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ride'
+          description: ''
+    post:
+      operationId: api_rides_create
+      tags:
+      - 4. Rides
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ride'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Ride'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Ride'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+          description: ''
+  /api/rides/{id}/:
+    get:
+      operationId: api_rides_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - 4. Rides
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+          description: ''
+    delete:
+      operationId: api_rides_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - 4. Rides
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/rides/{id}/cancel/:
+    post:
+      operationId: api_rides_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - 4. Rides
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ride'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Ride'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Ride'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ride'
+          description: ''
+  /api/fare-estimate/:
+    get:
+      operationId: api_fare_estimate_retrieve
+      parameters:
+      - in: query
+        name: distance_km
+        schema:
+          type: number
+          format: double
+        required: true
+      - in: query
+        name: vehicle_type
+        schema:
+          type: string
+          enum:
+          - premium
+          - standard
+          - xl
+          default: standard
+      tags:
+      - 3. Fare estimate
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareEstimateResponse'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: api_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - 1. Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+components:
+  schemas:
+    AvailableDriver:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        vehicle_number:
+          type: string
+          maxLength: 20
+      required:
+      - first_name
+      - id
+      - last_name
+      - username
+      - vehicle_number
+      - vehicle_type
+    FareEstimateResponse:
+      type: object
+      properties:
+        distance_km:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        vehicle_type:
+          type: string
+        estimated_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+      required:
+      - distance_km
+      - estimated_fare
+      - vehicle_type
+    PatchedChangePassword:
+      type: object
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+    PatchedUserProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+    Registration:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    Ride:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        rider:
+          type: integer
+          readOnly: true
+        pickup_location:
+          type: string
+          maxLength: 255
+        dropoff_location:
+          type: string
+          maxLength: 255
+        distance_km:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        vehicle_type:
+          type: string
+          maxLength: 30
+        estimated_fare:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        driver:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - created_at
+      - distance_km
+      - driver
+      - dropoff_location
+      - estimated_fare
+      - id
+      - pickup_location
+      - rider
+      - status
+      - updated_at
+    StatusEnum:
+      enum:
+      - requested
+      - cancelled
+      - completed
+      type: string
+      description: |-
+        * `requested` - Requested
+        * `cancelled` - Cancelled
+        * `completed` - Completed
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UserProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - username
+    VehicleTypeEnum:
+      enum:
+      - standard
+      - premium
+      - xl
+      type: string
+      description: |-
+        * `standard` - Standard
+        * `premium` - Premium
+        * `xl` - XL
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: 1. Authentication
+  description: Register and obtain JWT tokens.
+- name: 2. User profile
+  description: View, update, and secure your profile.
+- name: 3. Fare estimate
+  description: Estimate a ride fare before booking.
+- name: 4. Rides
+  description: Create and manage ride requests.
